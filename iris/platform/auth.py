@@ -11,7 +11,7 @@ from urllib.parse import parse_qs, urlparse
 
 from iris.platform.config import load_config, save_config
 
-DEFAULT_SERVER = os.environ.get("IRIS_SERVER_URL", "http://localhost:3000")
+DEFAULT_SERVER = os.environ.get("IRIS_SERVER_URL", "https://iris.clickbus.com")
 TIMEOUT_SECONDS = 120
 
 
