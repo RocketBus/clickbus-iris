@@ -869,7 +869,7 @@ def _run_login(argv: list[str]) -> None:
 
     # Manual token login (for CI/CD)
     if token:
-        s = server or os.environ.get("IRIS_SERVER_URL") or "http://localhost:3000"
+        s = server or os.environ.get("IRIS_SERVER_URL") or "https://iris.clickbus.com"
         if not manual_login(s, token):
             sys.exit(1)
         return
@@ -1272,7 +1272,7 @@ def _run_upgrade() -> None:
     except Exception:
         pass
     server_url = (
-        os.environ.get("IRIS_SERVER_URL") or config_server or "http://localhost:3000"
+        os.environ.get("IRIS_SERVER_URL") or config_server or "https://iris.clickbus.com"
     ).rstrip("/")
 
     install_url = f"{server_url}/install.sh"

@@ -56,6 +56,7 @@ The installer:
 | `IRIS_HOME` | `~/.iris` | Installation directory |
 | `IRIS_VERSION` | `latest` | Specific version to install (e.g. `1.1.2`) |
 | `IRIS_INSTALL_METHOD` | `auto` | Force `pip` or `pipx` |
+| `IRIS_SERVER_URL` | `https://iris.clickbus.com` | Platform URL used by `iris login` and `iris install` — override for local dev |
 
 **Uninstall:**
 
