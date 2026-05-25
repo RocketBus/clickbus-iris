@@ -340,6 +340,10 @@ All fields require GitHub PR data.
 |---|---|---|---|
 | `pr_merged_count` | int ≥ 0 | `analysis/pr_lifecycle.py` | no PR data |
 | `pr_median_time_to_merge_hours` | float ≥ 0 | same | same |
+| `pr_mean_time_to_merge_hours` | float ≥ 0 | same | same |
+| `pr_p90_time_to_merge_hours` | float ≥ 0 | same | same |
+| `pr_pct_merged_within_24h` | float `0.0–1.0` | same | same |
+| `pr_cycle_time_buckets` | `{same_day, one_day, two_to_three_days, four_to_seven_days, seven_plus_days}` ints | same | same |
 | `pr_median_size_files` | int ≥ 0 | same | same |
 | `pr_median_size_lines` | int ≥ 0 | same | same |
 | `pr_review_rounds_median` | float ≥ 0 | same | same |
@@ -348,6 +352,14 @@ All fields require GitHub PR data.
 `pr_review_rounds_median` — median count of `CHANGES_REQUESTED` reviews
 per PR. `pr_single_pass_rate` — fraction of PRs with zero
 `CHANGES_REQUESTED`. `pr_median_size_lines` — `additions + deletions`.
+
+`pr_cycle_time_buckets` partitions merged PRs by open→merge duration
+(boundaries: 24h, 48h, 4d, 8d). The five counts must sum to
+`pr_merged_count`. `pr_pct_merged_within_24h` equals
+`buckets.same_day / pr_merged_count` (engine emits it pre-computed so
+percentile snapshots survive ingestion drops). The platform aggregates
+these counts across repos to render the org-level Cycle Time view
+without persisting individual PR durations.
 
 ---
 
@@ -848,7 +860,7 @@ By-origin attribution:
 | `analysis/attribution_gap.py` | `attribution_gap` |
 | `analysis/churn_detail.py` | `churn_top_files`, `churn_couplings` |
 | `analysis/activity_timeline.py` | `activity_timeline`, `activity_patterns` |
-| `analysis/pr_lifecycle.py` | `pr_merged_count`, `pr_median_time_to_merge_hours`, `pr_median_size_files`, `pr_median_size_lines`, `pr_review_rounds_median`, `pr_single_pass_rate` |
+| `analysis/pr_lifecycle.py` | `pr_merged_count`, `pr_median_time_to_merge_hours`, `pr_mean_time_to_merge_hours`, `pr_p90_time_to_merge_hours`, `pr_pct_merged_within_24h`, `pr_cycle_time_buckets`, `pr_median_size_files`, `pr_median_size_lines`, `pr_review_rounds_median`, `pr_single_pass_rate` |
 | `analysis/flow_load.py` | `flow_load` |
 | `analysis/flow_efficiency.py` | `flow_efficiency_median`, `median_time_to_first_review_hours`, `time_in_phase_median_hours`, `flow_efficiency_by_intent`, `flow_efficiency_by_origin` |
 | `analysis/dora_real.py` | `dora_source`, `dora_deployments_total`, `dora_deployments_failed`, `dora_deployments_pending_evaluation`, `dora_incidents_total`, `dora_cfr`, `dora_mttr_per_deploy_seconds_median`, `dora_mttr_per_deploy_seconds_p90`, `dora_mttr_per_incident_seconds_median`, `dora_mttr_per_incident_seconds_p90`, `dora_rollback_rate`, `dora_rollbacks_total`, `dora_lead_time_seconds_median`, `dora_deploy_frequency_per_day`, `dora_remediation_distribution`, `dora_cfr_by_origin`, `dora_rollback_rate_by_origin`, `dora_cfr_by_origin_coverage_pct` |

@@ -377,6 +377,16 @@ def aggregate(
             pr_kwargs = {
                 "pr_merged_count": pr_result.pr_merged_count,
                 "pr_median_time_to_merge_hours": pr_result.pr_median_time_to_merge_hours,
+                "pr_mean_time_to_merge_hours": pr_result.pr_mean_time_to_merge_hours,
+                "pr_p90_time_to_merge_hours": pr_result.pr_p90_time_to_merge_hours,
+                "pr_pct_merged_within_24h": pr_result.pr_pct_merged_within_24h,
+                "pr_cycle_time_buckets": {
+                    "same_day": pr_result.pr_cycle_time_buckets.same_day,
+                    "one_day": pr_result.pr_cycle_time_buckets.one_day,
+                    "two_to_three_days": pr_result.pr_cycle_time_buckets.two_to_three_days,
+                    "four_to_seven_days": pr_result.pr_cycle_time_buckets.four_to_seven_days,
+                    "seven_plus_days": pr_result.pr_cycle_time_buckets.seven_plus_days,
+                },
                 "pr_median_size_files": pr_result.pr_median_size_files,
                 "pr_median_size_lines": pr_result.pr_median_size_lines,
                 "pr_review_rounds_median": pr_result.pr_review_rounds_median,

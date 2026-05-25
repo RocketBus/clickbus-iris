@@ -4,6 +4,24 @@ All notable changes to Iris are documented here. The format is based on [Keep a 
 
 ---
 
+## Unreleased
+
+### Added
+
+- **Cycle Time dashboard section** (per-repo open→merge distribution).
+  The engine now emits `pr_mean_time_to_merge_hours`,
+  `pr_p90_time_to_merge_hours`, `pr_pct_merged_within_24h`, and
+  `pr_cycle_time_buckets` alongside the existing median. The platform
+  uses these to render a new "Cycle Time" section in the org
+  dashboard: 4 KPI cards (% within 24h, median, mean, P90), a sorted
+  horizontal bar chart of "% merged within 1 day per repo", and a
+  stacked bucket chart per repo. Bucket counts are summed exactly
+  across repos so the org-level distribution and percentage are not
+  approximations; the org-level median/mean are weighted by per-repo
+  merged count.
+
+---
+
 ## v1.0.7 — Datadog integration: post-launch fixes (2026-05-13)
 
 Five fixes that landed after the v1.0.6 cut, surfaced as the customer's

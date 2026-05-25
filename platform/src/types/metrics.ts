@@ -308,6 +308,19 @@ export interface ReportMetrics {
   // PR lifecycle
   pr_merged_count?: number;
   pr_median_time_to_merge_hours?: number;
+  // Cycle-time distribution — populated together with pr_merged_count.
+  // The platform aggregates bucket counts across repos to render an
+  // org-level distribution without persisting individual PR durations.
+  pr_mean_time_to_merge_hours?: number;
+  pr_p90_time_to_merge_hours?: number;
+  pr_pct_merged_within_24h?: number;
+  pr_cycle_time_buckets?: {
+    same_day: number;
+    one_day: number;
+    two_to_three_days: number;
+    four_to_seven_days: number;
+    seven_plus_days: number;
+  };
   pr_median_size_files?: number;
   pr_median_size_lines?: number;
   pr_review_rounds_median?: number;

@@ -10,6 +10,7 @@ import type {
   OrgPulse,
   DeliveryQuality,
   AIvsHumanData,
+  CycleTimeData,
   IntentData,
   PRHealthData,
   HealthMapEntry,
@@ -599,6 +600,97 @@ export function computePRHealth(
           : null,
     },
     reposWithData: reposWithPR.length,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// computeCycleTime — per-repo open→merge duration distribution
+// ---------------------------------------------------------------------------
+
+/**
+ * Aggregate per-repo cycle-time fields emitted by the engine into the
+ * shape consumed by the CycleTime dashboard section.
+ *
+ * Org-level mean/median are weighted by per-repo merged count. We don't
+ * persist individual PR durations, so this is an approximation — but
+ * the bucket counts ARE summed exactly across repos, so the
+ * "% merged within 24h" KPI and the stacked distribution chart are
+ * not approximations.
+ */
+export function computeCycleTime(
+  repos: RepoSummary[],
+  payloads: Map<string, ReportMetrics>,
+): CycleTimeData | null {
+  const repoNameById = new Map(repos.map((r) => [r.id, r.name]));
+
+  type Row = NonNullable<CycleTimeData["perRepo"]>[number];
+  const rows: Row[] = [];
+
+  let totalMerged = 0;
+  let totalWithin24h = 0;
+  let medianWeightedSum = 0;
+  let meanWeightedSum = 0;
+  let weightTotal = 0;
+  let maxP90: number | null = null;
+
+  for (const [repoId, p] of payloads) {
+    const merged = p.pr_merged_count ?? 0;
+    const buckets = p.pr_cycle_time_buckets;
+    if (merged <= 0 || !buckets) continue;
+
+    const sum =
+      buckets.same_day +
+      buckets.one_day +
+      buckets.two_to_three_days +
+      buckets.four_to_seven_days +
+      buckets.seven_plus_days;
+
+    // The buckets should sum to merged. Trust the engine but fall back
+    // to the sum to keep percentages internally consistent if a future
+    // engine version ever changes the bucket boundaries.
+    const denom = sum > 0 ? sum : merged;
+    const pctWithin24h = p.pr_pct_merged_within_24h ?? buckets.same_day / denom;
+
+    rows.push({
+      name: repoNameById.get(repoId) ?? repoId,
+      merged,
+      pctWithin24h,
+      buckets,
+    });
+
+    totalMerged += merged;
+    totalWithin24h += buckets.same_day;
+
+    if (p.pr_median_time_to_merge_hours !== undefined) {
+      medianWeightedSum += p.pr_median_time_to_merge_hours * merged;
+      weightTotal += merged;
+    }
+    if (p.pr_mean_time_to_merge_hours !== undefined) {
+      meanWeightedSum += p.pr_mean_time_to_merge_hours * merged;
+    }
+    if (p.pr_p90_time_to_merge_hours !== undefined) {
+      maxP90 =
+        maxP90 === null
+          ? p.pr_p90_time_to_merge_hours
+          : Math.max(maxP90, p.pr_p90_time_to_merge_hours);
+    }
+  }
+
+  if (rows.length === 0) return null;
+
+  // Sort fastest-first by the within-24h share, matching the reference
+  // dashboard. Ties broken by larger merged volume so a repo with one
+  // same-day PR doesn't outrank a repo with hundreds.
+  rows.sort((a, b) => b.pctWithin24h - a.pctWithin24h || b.merged - a.merged);
+
+  return {
+    reposWithData: rows.length,
+    totalPRsMerged: totalMerged,
+    pctMergedWithin24h: totalMerged > 0 ? totalWithin24h / totalMerged : null,
+    medianHours: weightTotal > 0 ? medianWeightedSum / weightTotal : null,
+    meanHours: weightTotal > 0 ? meanWeightedSum / weightTotal : null,
+    p90Hours: maxP90,
+    perRepo: rows,
   };
 }
 

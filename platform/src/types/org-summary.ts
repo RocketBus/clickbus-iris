@@ -93,6 +93,41 @@ export interface PRHealthData {
   reposWithData: number;
 }
 
+/**
+ * Cycle Time view — how long the org takes to go from PR open to merge.
+ *
+ * Aggregates the engine's per-repo cycle-time distribution into both
+ * org-wide totals (the four KPI cards) and per-repo breakdowns (the
+ * "% merged within 24h" ranking and the stacked bucket chart).
+ */
+export interface CycleTimeData {
+  /** Number of repos that contributed at least one merged PR in the window. */
+  reposWithData: number;
+  /** Total merged PRs across all repos. */
+  totalPRsMerged: number;
+  /** Fraction (0.0–1.0) of merged PRs whose cycle time was ≤ 24h. */
+  pctMergedWithin24h: number | null;
+  /** Hours. Org-level median, weighted by per-repo merged count. */
+  medianHours: number | null;
+  /** Hours. Org-level mean, weighted by per-repo merged count. */
+  meanHours: number | null;
+  /** Hours. Worst-case P90 across repos (max of repo P90s). */
+  p90Hours: number | null;
+  /** Per-repo rows, sorted from fastest to slowest. */
+  perRepo: Array<{
+    name: string;
+    merged: number;
+    pctWithin24h: number;
+    buckets: {
+      same_day: number;
+      one_day: number;
+      two_to_three_days: number;
+      four_to_seven_days: number;
+      seven_plus_days: number;
+    };
+  }>;
+}
+
 /** Single entry for the health map treemap. */
 export interface HealthMapEntry {
   name: string;

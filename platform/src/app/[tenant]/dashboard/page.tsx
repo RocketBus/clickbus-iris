@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth/next";
 import { RepoList } from "./repo-list";
 import { AIDeliveryTimeline } from "./sections/AIDeliveryTimeline";
 import { AIvsHuman } from "./sections/AIvsHuman";
+import { CycleTime } from "./sections/CycleTime";
 import { DeliveryQuality } from "./sections/DeliveryQuality";
 import { DORAOverview } from "./sections/DORAOverview";
 import { HealthMap } from "./sections/HealthMap";
@@ -28,6 +29,7 @@ import {
   computeOrgPulse,
   computeDeliveryQuality,
   computeAIvsHuman,
+  computeCycleTime,
   computeIntentDistribution,
   computePRHealth,
   computeHealthMap,
@@ -108,6 +110,7 @@ export default async function OrgDashboardPage({
   const aiData = computeAIvsHuman(payloads);
   const intentData = computeIntentDistribution(payloads);
   const prData = computePRHealth(repoSummaries, payloads);
+  const cycleTimeData = computeCycleTime(repoSummaries, payloads);
   const healthMapEntries = computeHealthMap(repoSummaries);
   const timelineData = computeOrgTimeline(payloads);
   const hyperEngineers = computeHyperEngineers(
@@ -183,6 +186,9 @@ export default async function OrgDashboardPage({
 
       {/* PR health */}
       {prData && <PRHealth data={prData} />}
+
+      {/* Cycle time — open-to-merge duration distribution per repo */}
+      {cycleTimeData && <CycleTime data={cycleTimeData} />}
 
       {/* Health map */}
       <HealthMap entries={healthMapEntries} orgSlug={tenant} />
