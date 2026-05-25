@@ -856,19 +856,34 @@ def write_report_md(
 
     # PR Lifecycle section (conditional — only when PR data is available)
     if metrics.pr_merged_count is not None:
-        lines.extend([
+        pr_rows: list[str] = [
             f"## {s['section_pr_lifecycle']}",
             f"",
             f"| {s['table_metric']} | {s['table_value']} |",
             f"|---|---|",
             f"| {s['metric_pr_merged_count']} | {metrics.pr_merged_count} |",
             f"| {s['metric_pr_median_time_to_merge']} | {metrics.pr_median_time_to_merge_hours} |",
+        ]
+        if metrics.pr_mean_time_to_merge_hours is not None:
+            pr_rows.append(
+                f"| {s['metric_pr_mean_time_to_merge']} | {metrics.pr_mean_time_to_merge_hours} |"
+            )
+        if metrics.pr_p90_time_to_merge_hours is not None:
+            pr_rows.append(
+                f"| {s['metric_pr_p90_time_to_merge']} | {metrics.pr_p90_time_to_merge_hours} |"
+            )
+        if metrics.pr_pct_merged_within_24h is not None:
+            pr_rows.append(
+                f"| {s['metric_pr_pct_merged_within_24h']} | {metrics.pr_pct_merged_within_24h:.0%} |"
+            )
+        pr_rows.extend([
             f"| {s['metric_pr_median_size_files']} | {metrics.pr_median_size_files} |",
             f"| {s['metric_pr_median_size_lines']} | {metrics.pr_median_size_lines} |",
             f"| {s['metric_pr_review_rounds_median']} | {metrics.pr_review_rounds_median} |",
             f"| {s['metric_pr_single_pass_rate']} | {metrics.pr_single_pass_rate:.0%} |",
             f"",
         ])
+        lines.extend(pr_rows)
 
     # Delivery Velocity section (conditional — only when enough commits)
     if velocity is not None:

@@ -155,6 +155,15 @@
   --color-signal-gray: #636363;
   --color-glow-primary: rgba(165, 40, 255, 0.2);
 
+  /* Cycle-time bucket ramp — ordinal scale from "same day" (best)
+     to "7+ days" (worst). Used by the CycleTime dashboard section
+     so the legend and stacked bars stay color-coordinated. */
+  --color-bucket-same-day: #14b8a6; /* teal — fastest */
+  --color-bucket-one-day: #4ade80; /* green */
+  --color-bucket-two-three: #f5c542; /* amber */
+  --color-bucket-four-seven: #f97316; /* orange — slowing down */
+  --color-bucket-seven-plus: #ef4444; /* red — slowest */
+
   /* Iris categorical palette — pick from here when a chart has multiple
      unrelated series (e.g., commit intents). Sized for up to 6 distinct
      categories that read clearly on the dark background and don't all

@@ -82,6 +82,13 @@ class ReportMetrics:
     # PR lifecycle metrics (optional — None when no GitHub data available)
     pr_merged_count: int | None = None
     pr_median_time_to_merge_hours: float | None = None
+    # Cycle-time distribution — populated alongside pr_merged_count.
+    # Together they let the platform reconstruct org-level distribution
+    # by summing bucket counts across repos.
+    pr_mean_time_to_merge_hours: float | None = None
+    pr_p90_time_to_merge_hours: float | None = None
+    pr_pct_merged_within_24h: float | None = None
+    pr_cycle_time_buckets: dict[str, int] | None = None
     pr_median_size_files: int | None = None
     pr_median_size_lines: int | None = None
     pr_review_rounds_median: float | None = None

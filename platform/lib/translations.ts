@@ -370,6 +370,39 @@ export const translations = {
         human: "Human",
         ai: "AI-Assisted",
       },
+      cycleTime: {
+        title: "Cycle Time",
+        subtitle:
+          "How long engineering takes to deliver, from PR open to merge.",
+        insight:
+          "Engineering ships fast. {pct} of PRs are merged within a day. Median cycle time is {median}. Lead-time bottlenecks live before (demand/product) and after (infra, environments, deploy) — not in code execution.",
+        kpi: {
+          pctWithin24h: "PRs merged within 1 day",
+          median: "Median cycle time",
+          mean: "Mean cycle time",
+          p90: "P90 cycle time",
+        },
+        charts: {
+          ranking: {
+            title: "% PRs Merged within 1 Day — by Repo",
+            subtitle: "Higher is faster",
+          },
+          distribution: {
+            title: "Cycle Time Distribution — by Repo",
+            subtitle: "Stacked: more teal/green means faster",
+          },
+        },
+        buckets: {
+          sameDay: "Same day",
+          oneDay: "1 day",
+          twoThree: "2–3 days",
+          fourSeven: "4–7 days",
+          sevenPlus: "7+ days",
+        },
+        tooltips: {
+          ranking: "{merged} merged PRs",
+        },
+      },
       healthMap: {
         title: "Health Map",
         subtitle: "Repository size by commits, colored by stabilization",
@@ -1673,6 +1706,39 @@ export const translations = {
         origin: "Origem",
         human: "Humano",
         ai: "Assistido por IA",
+      },
+      cycleTime: {
+        title: "Cycle Time",
+        subtitle:
+          "Quanto tempo a engenharia leva para entregar, do PR aberto ao merge.",
+        insight:
+          "A engenharia entrega rápido. {pct} dos PRs são mesclados em até 1 dia. A mediana do cycle time é {median}. Os gargalos de lead time estão antes (definição de demanda/produto) e depois (infra, ambientes, deploy) — não na execução do código.",
+        kpi: {
+          pctWithin24h: "PRs merged em até 1 dia",
+          median: "Mediana do cycle time",
+          mean: "Média do cycle time",
+          p90: "P90 do cycle time",
+        },
+        charts: {
+          ranking: {
+            title: "% PRs Merged em até 1 Dia — por Repo",
+            subtitle: "Quanto maior, mais rápido o repositório entrega",
+          },
+          distribution: {
+            title: "Distribuição de Cycle Time — por Repo",
+            subtitle: "Empilhado: quanto mais verde/ciano, mais rápido",
+          },
+        },
+        buckets: {
+          sameDay: "Mesmo dia",
+          oneDay: "1 dia",
+          twoThree: "2–3 dias",
+          fourSeven: "4–7 dias",
+          sevenPlus: "7+ dias",
+        },
+        tooltips: {
+          ranking: "{merged} PRs mesclados",
+        },
       },
       healthMap: {
         title: "Mapa de saúde",
