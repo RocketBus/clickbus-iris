@@ -67,6 +67,10 @@ interface PayloadInsights {
   flowEfficiencyByIntent?: Partial<Record<string, number>>;
   timeInPhaseMedianHours?: Partial<Record<string, number>>;
   medianTimeToFirstReviewHours?: number;
+  humanReviewCoveragePct?: number;
+  humanApprovalCoveragePct?: number;
+  humanReviewCoverageByIntent?: Partial<Record<string, number>>;
+  humanReviewCoverageByOriginOfPr?: Partial<Record<string, number>>;
 }
 
 interface RepoChartsProps {
@@ -547,6 +551,124 @@ function FlowEfficiencyCard({
             </div>
           </div>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function CoverageBreakdown({
+  title,
+  entries,
+  labels,
+}: {
+  title: string;
+  entries: [string, number][];
+  labels: Record<string, string>;
+}) {
+  if (entries.length === 0) return null;
+  return (
+    <div className="space-y-2 pt-1">
+      <div className="text-xs uppercase tracking-wide text-muted-foreground">
+        {title}
+      </div>
+      <div className="grid gap-1 text-xs">
+        {entries.map(([key, value]) => (
+          <div
+            key={key}
+            className="flex items-center justify-between border-b border-border/40 py-1"
+          >
+            <span>{labels[key] ?? key}</span>
+            <span className="font-mono text-muted-foreground">
+              {(value * 100).toFixed(0)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HumanReviewCoverageCard({
+  reviewPct,
+  approvalPct,
+  byOrigin,
+  byIntent,
+  title,
+  subtitle,
+  reviewLabel,
+  approvalLabel,
+  byOriginTitle,
+  byIntentTitle,
+  originLabels,
+  intentLabels,
+}: {
+  reviewPct: number;
+  approvalPct: number | undefined;
+  byOrigin: Partial<Record<string, number>> | undefined;
+  byIntent: Partial<Record<string, number>> | undefined;
+  title: string;
+  subtitle: string;
+  reviewLabel: string;
+  approvalLabel: string;
+  byOriginTitle: string;
+  byIntentTitle: string;
+  originLabels: Record<string, string>;
+  intentLabels: Record<string, string>;
+}) {
+  const numberEntries = (
+    rec: Partial<Record<string, number>> | undefined,
+  ): [string, number][] =>
+    rec
+      ? (Object.entries(rec).filter(([, v]) => typeof v === "number") as [
+          string,
+          number,
+        ][])
+      : [];
+
+  // Low real-human-review coverage is the alarming case — color the headline
+  // metric so a kody-only pipeline stands out at a glance.
+  const reviewColor = reviewPct < 0.5 ? "text-signal-red" : "text-signal-green";
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{subtitle}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+              {reviewLabel}
+            </div>
+            <div
+              className={cn("mt-1 font-mono text-3xl font-bold", reviewColor)}
+            >
+              {(reviewPct * 100).toFixed(0)}%
+            </div>
+          </div>
+          {approvalPct != null && (
+            <div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                {approvalLabel}
+              </div>
+              <div className="mt-1 font-mono text-3xl font-bold">
+                {(approvalPct * 100).toFixed(0)}%
+              </div>
+            </div>
+          )}
+        </div>
+
+        <CoverageBreakdown
+          title={byOriginTitle}
+          entries={numberEntries(byOrigin)}
+          labels={originLabels}
+        />
+        <CoverageBreakdown
+          title={byIntentTitle}
+          entries={numberEntries(byIntent)}
+          labels={intentLabels}
+        />
       </CardContent>
     </Card>
   );
@@ -1073,6 +1195,24 @@ export function RepoCharts({
             intentLabels={intentLabels}
           />
         )}
+
+      {/* Human Review Coverage — share of merged PRs a human actually reviewed */}
+      {insights.humanReviewCoveragePct != null && (
+        <HumanReviewCoverageCard
+          reviewPct={insights.humanReviewCoveragePct}
+          approvalPct={insights.humanApprovalCoveragePct}
+          byOrigin={insights.humanReviewCoverageByOriginOfPr}
+          byIntent={insights.humanReviewCoverageByIntent}
+          title={t("repoCharts.humanReviewCoverage.title")}
+          subtitle={t("repoCharts.humanReviewCoverage.subtitle")}
+          reviewLabel={t("repoCharts.humanReviewCoverage.reviewLabel")}
+          approvalLabel={t("repoCharts.humanReviewCoverage.approvalLabel")}
+          byOriginTitle={t("repoCharts.humanReviewCoverage.byOriginTitle")}
+          byIntentTitle={t("repoCharts.humanReviewCoverage.byIntentTitle")}
+          originLabels={originLabels}
+          intentLabels={intentLabels}
+        />
+      )}
 
       {/* Flow Load — WIP per ISO week + author concurrency */}
       {insights.flowLoad && insights.flowLoad.length >= 2 && (

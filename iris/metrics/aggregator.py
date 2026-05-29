@@ -17,6 +17,7 @@ from iris.analysis.commit_shape import analyze_commit_shapes
 from iris.analysis.dora_real import analyze_dora_real
 from iris.analysis.fix_latency import calculate_fix_latency
 from iris.analysis.flow_efficiency import analyze_flow_efficiency
+from iris.analysis.human_review_coverage import analyze_human_review_coverage
 from iris.analysis.open_pr_aging import analyze_open_pr_aging, now_utc
 from iris.analysis.flow_load import analyze_flow_load
 from iris.analysis.stability_map import calculate_stability_map
@@ -319,6 +320,29 @@ def aggregate(
                     flow_efficiency_result.flow_efficiency_by_origin
                 )
 
+    # Human Review Coverage — fraction of merged PRs a human actually reviewed
+    human_review_coverage_kwargs: dict = {}
+    if prs:
+        coverage_result = analyze_human_review_coverage(
+            prs,
+            commit_origin_map=origin_map,
+        )
+        if coverage_result is not None:
+            human_review_coverage_kwargs["human_review_coverage_pct"] = (
+                coverage_result.human_review_coverage_pct
+            )
+            human_review_coverage_kwargs["human_approval_coverage_pct"] = (
+                coverage_result.human_approval_coverage_pct
+            )
+            if coverage_result.human_review_coverage_by_intent:
+                human_review_coverage_kwargs["human_review_coverage_by_intent"] = (
+                    coverage_result.human_review_coverage_by_intent
+                )
+            if coverage_result.human_review_coverage_by_origin_of_pr:
+                human_review_coverage_kwargs[
+                    "human_review_coverage_by_origin_of_pr"
+                ] = coverage_result.human_review_coverage_by_origin_of_pr
+
     # Open PR Aging — snapshot of stuck inventory (non-draft, non-bot)
     open_pr_aging_kwargs: dict = {}
     if prs:
@@ -460,6 +484,7 @@ def aggregate(
         **pr_kwargs,
         **flow_load_kwargs,
         **flow_efficiency_kwargs,
+        **human_review_coverage_kwargs,
         **open_pr_aging_kwargs,
         **_dora_real_kwargs(external_data, origin_map),
     )

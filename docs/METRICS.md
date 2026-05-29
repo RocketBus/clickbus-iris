@@ -686,7 +686,80 @@ Findings emitted by `narrative.py` (see `iris/i18n.py:finding_flow_efficiency_*`
 
 ---
 
-## 26. Open PR Aging
+## 26. Human Review Coverage
+
+Fraction of merged PRs that received a *genuine human review* — and, separately,
+a *human approval*. This disambiguates `pr_single_pass_rate`, which collapses two
+opposite realities into one number: "a human reviewed and approved in one pass"
+versus "no human ever looked — a bot approved or the author self-merged". As AI
+code-review tools (kody.ai, Copilot Review, CodeRabbit) become default, the share
+of PRs with real human review drops without surfacing anywhere; a repo can show
+`pr_single_pass_rate = 0.9` (looks healthy) while most PRs merge with no human
+event at all.
+
+| Field | Unit | Source | Nullable when |
+|---|---|---|---|
+| `human_review_coverage_pct` | float `0.0–1.0` | `analysis/human_review_coverage.py` | no merged PR in the window |
+| `human_approval_coverage_pct` | float `0.0–1.0` | same | same |
+| `human_review_coverage_by_intent` | `Record<intent, ratio>` | same | < `min_sample` (default 10) PRs in the segment |
+| `human_review_coverage_by_origin_of_pr` | `Record<origin, ratio>` | same | no `commit_origin_map` provided, or < `min_sample` PRs in the segment |
+
+Definition (per merged PR, intermediate only):
+
+- `had_human_review` = any review whose author does **not** match
+  `_BOT_AUTHOR_PATTERNS` (the same regex `origin_classifier` and Flow Efficiency
+  use — one source of truth for "bot").
+- `had_human_approval` = any non-bot review with `state == "APPROVED"`.
+
+The window aggregates are the mean of these booleans over all merged PRs.
+
+Edge cases:
+
+- **PR with no reviews** → `had_human_review = False`; **stays in the
+  denominator**. Filtering these out would inflate the metric and hide exactly
+  the behaviour we want to see.
+- **PR with only bot reviews** → `had_human_review = False`, likewise counted.
+- **Human commented but did not approve** → review `True`, approval `False`.
+  Both numbers are reported because "a human looked but didn't formally approve"
+  is common under time pressure.
+
+PR origin rule (for `human_review_coverage_by_origin_of_pr`): identical to Flow
+Efficiency — PR is `AI_ASSISTED` when ≥ 50 % of its non-bot commits are
+`AI_ASSISTED`, otherwise `HUMAN`; PRs with no classified commits are excluded
+(`human_review_coverage._pr_origin`).
+
+Privacy / ranking risk (Principle #2):
+
+- `had_human_review` is computed per PR as an intermediate but **never
+  persisted**, and **never attributed to a specific reviewer**. Coverage is a
+  property of the system, not of who reviewed or should have. The schema exposes
+  only window-level aggregates.
+- By-intent / by-origin segments emit only at ≥ `min_sample` (default 10) PRs.
+- Code-review checklist: confirm no endpoint or output links `had_human_review`
+  to a person.
+
+Reading it alongside Flow Efficiency (the two tell the full story):
+
+| Flow Efficiency | Human Review Coverage | Reading |
+|---|---|---|
+| high | high | healthy and well-reviewed |
+| low | low | mostly AI-only flow — the team isn't looking |
+| low | high | human reviewers overloaded — long queue between events |
+| high | low | rare; small PRs auto-approved quickly |
+
+Findings emitted by `narrative.py` (see `iris/i18n.py:finding_human_review_coverage_*`):
+
+- `finding_human_review_coverage_descriptive` — always when data exists.
+- `finding_human_review_coverage_low` — when `human_review_coverage_pct <
+  HUMAN_REVIEW_COVERAGE_LOW_THRESHOLD` (0.50); replaces the descriptive bullet.
+  **Threshold is a hypothesis pending calibration.**
+- `finding_human_review_coverage_origin_gap` — when human-authored PR coverage
+  exceeds AI-assisted PR coverage by ≥ `HUMAN_REVIEW_COVERAGE_ORIGIN_GAP_THRESHOLD`
+  (0.20 = 20 pp).
+
+---
+
+## 27. Open PR Aging
 
 Snapshot of the **currently open** PRs at run time: how old are they,
 and how long since each one had any significant activity? Complements
@@ -763,7 +836,7 @@ Findings emitted by `narrative.py` (see `iris/i18n.py:finding_open_pr_aging_*`):
 
 ---
 
-## 27. Adoption timeline (post-report, not on `ReportMetrics`)
+## 28. Adoption timeline (post-report, not on `ReportMetrics`)
 
 When AI-assisted commits started appearing, and how the pre-adoption vs
 post-adoption metrics compare.

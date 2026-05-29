@@ -262,6 +262,13 @@ export interface ReportMetrics {
   };
   median_time_to_first_review_hours?: number;
 
+  // Human Review Coverage — fraction of merged PRs with genuine human review.
+  // Disambiguates pr_single_pass_rate: "merged in one pass" vs "no human looked".
+  human_review_coverage_pct?: number; // 0.0–1.0
+  human_approval_coverage_pct?: number; // 0.0–1.0
+  human_review_coverage_by_intent?: Partial<Record<ChangeIntent, number>>;
+  human_review_coverage_by_origin_of_pr?: Partial<Record<CommitOrigin, number>>;
+
   // DORA (real) — populated when the org has an active Datadog integration
   // and the engine fetched events for the analysis window. Every field
   // here is optional; `dora_source` is the canonical "is there data?" flag.

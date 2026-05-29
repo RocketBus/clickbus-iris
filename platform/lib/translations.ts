@@ -672,6 +672,15 @@ export const translations = {
         },
         byIntentTitle: "By intent",
       },
+      humanReviewCoverage: {
+        title: "Human Review Coverage",
+        subtitle:
+          "Share of merged PRs a human actually reviewed. A high single-pass rate can hide PRs that merged with no human looking — bot-approved or self-merged.",
+        reviewLabel: "Human review",
+        approvalLabel: "Human approval",
+        byOriginTitle: "By PR origin",
+        byIntentTitle: "By intent",
+      },
       aiImpact: {
         title: "AI Impact",
         subtitle: "How AI-assisted code compares to human code over time",
@@ -1258,6 +1267,8 @@ export const translations = {
       subtitle: "Side-by-side comparison of repo health and metrics",
       empty: "No repositories with data to compare.",
       ranking: "Repository Ranking",
+      sortBy: "Sort by",
+      sortHint: "Click a column header to sort",
       columns: {
         repository: "Repository",
         stabilization: "Stabilization",
@@ -2012,6 +2023,15 @@ export const translations = {
         },
         byIntentTitle: "Por intent",
       },
+      humanReviewCoverage: {
+        title: "Cobertura de Review Humano",
+        subtitle:
+          "Fração dos PRs merged que tiveram review humano real. Single-pass alto pode esconder PRs que deram merge sem ninguém olhar — aprovados por bot ou auto-merge.",
+        reviewLabel: "Review humano",
+        approvalLabel: "Aprovação humana",
+        byOriginTitle: "Por origem do PR",
+        byIntentTitle: "Por intent",
+      },
       aiImpact: {
         title: "Impacto da IA",
         subtitle:
@@ -2612,6 +2632,8 @@ export const translations = {
       subtitle: "Comparação lado a lado de saúde e métricas dos repositórios",
       empty: "Nenhum repositório com dados para comparar.",
       ranking: "Ranking de Repositórios",
+      sortBy: "Ordenar por",
+      sortHint: "Clique no cabeçalho de uma coluna para ordenar",
       columns: {
         repository: "Repositório",
         stabilization: "Estabilização",

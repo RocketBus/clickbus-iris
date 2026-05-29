@@ -164,6 +164,22 @@ EN = {
         "PRs wait a median of {hours}h before the first review lands."
     ),
 
+    # Human Review Coverage findings
+    "finding_human_review_coverage_descriptive": (
+        "Human Review Coverage: {review_pct} of merged PRs got a real human "
+        "review ({approval_pct} a human approval)."
+    ),
+    "finding_human_review_coverage_low": (
+        "Only {review_pct} of merged PRs received a real human review "
+        "({approval_pct} a human approval) — the rest merged with no human "
+        "looking (bot-approved or self-merged). High single-pass rates can hide "
+        "this."
+    ),
+    "finding_human_review_coverage_origin_gap": (
+        "Human review coverage is {gap}pp lower on AI-assisted PRs "
+        "({ai_pct}) than human-authored PRs ({human_pct})."
+    ),
+
     # Flow Load findings
     "finding_flow_load_descriptive": (
         "Flow Load: median {median_wip} PRs in flight per week "
@@ -982,6 +998,22 @@ PT_BR = {
     ),
     "finding_time_to_first_review_slow": (
         "PRs aguardam em mediana {hours}h até o primeiro review."
+    ),
+
+    # Descobertas de Human Review Coverage
+    "finding_human_review_coverage_descriptive": (
+        "Cobertura de Review Humano: {review_pct} dos PRs merged tiveram review "
+        "humano real ({approval_pct} com aprovação humana)."
+    ),
+    "finding_human_review_coverage_low": (
+        "Apenas {review_pct} dos PRs merged tiveram review humano real "
+        "({approval_pct} com aprovação humana) — o resto deu merge sem ninguém "
+        "olhar (aprovado por bot ou auto-merge). Single-pass alto pode esconder "
+        "isso."
+    ),
+    "finding_human_review_coverage_origin_gap": (
+        "Cobertura de review humano é {gap}pp menor em PRs assistidos por IA "
+        "({ai_pct}) do que em PRs humanos ({human_pct})."
     ),
 
     # Descobertas de Flow Load
