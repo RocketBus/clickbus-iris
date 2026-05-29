@@ -37,6 +37,12 @@ STABILITY_GAP_THRESHOLD = 0.20  # 20 percentage points
 FLOW_EFFICIENCY_LOW_THRESHOLD = 0.30
 # Time-to-first-review (hours) above which we flag PRs as queued.
 TIME_TO_FIRST_REVIEW_SLOW_HOURS = 24.0
+# Human Review Coverage below this share triggers the "low coverage" finding.
+# Hypothesis pending calibration with 3-5 repos.
+HUMAN_REVIEW_COVERAGE_LOW_THRESHOLD = 0.50
+# Gap (percentage points) between HUMAN and AI_ASSISTED PR coverage that
+# triggers the origin-disparity finding.
+HUMAN_REVIEW_COVERAGE_ORIGIN_GAP_THRESHOLD = 0.20
 # Flow Load — feature WIP at the end of the window must exceed the start by
 # this multiplier (and by an absolute floor) to trigger the growth finding.
 # Threshold is a hypothesis pending calibration with 3-5 repos.
@@ -167,6 +173,9 @@ def generate_key_findings(metrics: ReportMetrics, lang: str = "en") -> str:
     # Flow Efficiency — wait-dominant signal + time-to-first-review queueing
     findings.extend(_flow_efficiency_findings(metrics, s))
 
+    # Human Review Coverage — real-human-review share + AI/human origin gap
+    findings.extend(_human_review_coverage_findings(metrics, s))
+
     # Flow Load — descriptive WIP snapshot + optional feature-growth signal
     flow_findings = _flow_load_findings(metrics, s)
     findings.extend(flow_findings)
@@ -221,6 +230,57 @@ def _flow_efficiency_findings(metrics: ReportMetrics, s: dict) -> list[str]:
         findings.append(
             s["finding_time_to_first_review_slow"].format(
                 hours=metrics.median_time_to_first_review_hours,
+            )
+        )
+
+    return findings
+
+
+def _human_review_coverage_findings(metrics: ReportMetrics, s: dict) -> list[str]:
+    """Build Human Review Coverage findings (0-2 bullets).
+
+    A descriptive (or low-coverage) bullet whenever
+    ``human_review_coverage_pct`` is present, plus an origin-gap bullet when
+    AI-assisted PRs receive markedly less human review than human-authored PRs.
+    """
+    if metrics.human_review_coverage_pct is None:
+        return []
+
+    review_pct = f"{metrics.human_review_coverage_pct:.0%}"
+    approval_pct = (
+        f"{metrics.human_approval_coverage_pct:.0%}"
+        if metrics.human_approval_coverage_pct is not None
+        else review_pct
+    )
+
+    findings: list[str] = []
+    if metrics.human_review_coverage_pct < HUMAN_REVIEW_COVERAGE_LOW_THRESHOLD:
+        findings.append(
+            s["finding_human_review_coverage_low"].format(
+                review_pct=review_pct, approval_pct=approval_pct
+            )
+        )
+    else:
+        findings.append(
+            s["finding_human_review_coverage_descriptive"].format(
+                review_pct=review_pct, approval_pct=approval_pct
+            )
+        )
+
+    by_origin = metrics.human_review_coverage_by_origin_of_pr or {}
+    ai = by_origin.get("AI_ASSISTED")
+    human = by_origin.get("HUMAN")
+    if (
+        ai is not None
+        and human is not None
+        and (human - ai) >= HUMAN_REVIEW_COVERAGE_ORIGIN_GAP_THRESHOLD
+    ):
+        gap_pp = round((human - ai) * 100)
+        findings.append(
+            s["finding_human_review_coverage_origin_gap"].format(
+                gap=gap_pp,
+                ai_pct=f"{ai:.0%}",
+                human_pct=f"{human:.0%}",
             )
         )
 

@@ -133,6 +133,14 @@ class ReportMetrics:
     time_in_phase_median_hours: dict[str, float] | None = None
     median_time_to_first_review_hours: float | None = None
 
+    # Human Review Coverage — fraction of merged PRs with genuine human review
+    # (optional — None when no merged PR exists in the window). Disambiguates
+    # pr_single_pass_rate: "merged in one pass" vs "no human ever looked".
+    human_review_coverage_pct: float | None = None
+    human_approval_coverage_pct: float | None = None
+    human_review_coverage_by_intent: dict[str, float] | None = None
+    human_review_coverage_by_origin_of_pr: dict[str, float] | None = None
+
     # Open PR Aging — snapshot of stuck inventory (optional — None when no
     # non-draft, non-bot open PR exists at coletion time).
     open_pr_count: int | None = None

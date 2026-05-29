@@ -6,8 +6,30 @@ All notable changes to Iris are documented here. The format is based on [Keep a 
 
 ## Unreleased
 
+---
+
+## v1.1.0 — Human Review Coverage + sortable compare table (2026-05-29)
+
 ### Added
 
+- **Human Review Coverage metric** (#35). New engine module
+  `analysis/human_review_coverage.py` emits `human_review_coverage_pct`
+  and `human_approval_coverage_pct` — the fraction of merged PRs that
+  received a *genuine human review* (and a human approval), with
+  `human_review_coverage_by_intent` and
+  `human_review_coverage_by_origin_of_pr` breakdowns. This disambiguates
+  `pr_single_pass_rate`, which conflates "reviewed and approved in one
+  pass" with "no human ever looked — bot-approved or self-merged". Bot
+  detection reuses the same `_BOT_AUTHOR_PATTERNS` as origin
+  classification and Flow Efficiency; PRs with no reviews or bot-only
+  reviews stay in the denominator. Aggregates only — never per-PR or
+  per-reviewer (Principle #2). Surfaced as a new "Human Review Coverage"
+  card on the repo detail page, beside Flow Efficiency, plus
+  threshold-based narrative findings (en + pt-BR).
+- **Sortable compare table.** The `/[tenant]/compare` table can now be
+  sorted by any column (repository, stabilization, revert rate, churn,
+  commits, AI%, health) by clicking its header; nulls sink to the
+  bottom. Mobile gets an equivalent sort dropdown + direction toggle.
 - **Cycle Time dashboard section** (per-repo open→merge distribution).
   The engine now emits `pr_mean_time_to_merge_hours`,
   `pr_p90_time_to_merge_hours`, `pr_pct_merged_within_24h`, and

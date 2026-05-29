@@ -85,6 +85,19 @@ function extractInsights(payload: Record<string, unknown> | null) {
     medianTimeToFirstReviewHours: payload.median_time_to_first_review_hours as
       | number
       | undefined,
+    humanReviewCoveragePct: payload.human_review_coverage_pct as
+      | number
+      | undefined,
+    humanApprovalCoveragePct: payload.human_approval_coverage_pct as
+      | number
+      | undefined,
+    humanReviewCoverageByIntent: payload.human_review_coverage_by_intent as
+      | Partial<Record<string, number>>
+      | undefined,
+    humanReviewCoverageByOriginOfPr:
+      payload.human_review_coverage_by_origin_of_pr as
+        | Partial<Record<string, number>>
+        | undefined,
   };
 }
 
